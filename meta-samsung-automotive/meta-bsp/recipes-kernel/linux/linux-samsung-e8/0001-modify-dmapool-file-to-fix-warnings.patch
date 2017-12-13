@@ -1,0 +1,26 @@
+From 28bdf2e93b3858414d3d3873ed9588171a9b3b0b Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Mon, 29 May 2017 15:35:07 +0200
+Subject: [PATCH] ADAS-3615: modify dmapool.h file to fix some warnings when
+ cross-compiling Neutrino's driver.
+
+---
+ include/linux/dmapool.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/linux/dmapool.h b/include/linux/dmapool.h
+index 022e34f..52456aa 100644
+--- a/include/linux/dmapool.h
++++ b/include/linux/dmapool.h
+@@ -14,6 +14,8 @@
+ #include <asm/io.h>
+ #include <asm/scatterlist.h>
+ 
++struct device;
++
+ struct dma_pool *dma_pool_create(const char *name, struct device *dev, 
+ 			size_t size, size_t align, size_t allocation);
+ 
+-- 
+2.7.4
+

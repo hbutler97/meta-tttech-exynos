@@ -1,0 +1,26 @@
+# LAYER_CONF_VERSION is increased each time build/conf/bblayers.conf
+# changes incompatibly
+LCONF_VERSION = "6"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+BBLAYERS ?= " \
+  ##OEROOT##/meta \
+  ##OEROOT##/meta-yocto \
+  ##OEROOT##/meta-yocto-bsp \
+  ##OEROOT##/../meta-openembedded/meta-oe \
+  ##OEROOT##/../meta-openembedded/meta-filesystems \
+  ##OEROOT##/../meta-openembedded/meta-networking \
+  ##OEROOT##/../meta-openembedded/meta-perl \
+  ##OEROOT##/../meta-openembedded/meta-python \
+  ##OEROOT##/../meta-ivi/meta-ivi \
+  ##OEROOT##/../meta-ivi/meta-ivi-bsp \
+  ##OEROOT##/../meta-ivi/meta-ivi-test \
+  ##OEROOT##/../meta-samsung-automotive/meta-bsp \
+  ##OEROOT##/../meta-samsung-automotive/meta-core \
+  ##OEROOT##/../meta-tttech-exynos/meta-samsung-automotive/meta-bsp \
+  ##OEROOT##/../meta-tttech-networking/meta-bsp-common \
+  ##OEROOT##/../meta-tttech-networking/meta-bsp-exynos \
+  "
+

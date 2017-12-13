@@ -1,0 +1,61 @@
+From 9a5c3c8908feac5fd66808d07f8b92e1761f3178 Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Wed, 26 Jul 2017 17:19:34 +0200
+Subject: [PATCH] ADAS-3974: improve TX bandwidth of Neutrino.
+
+---
+ DWC_ETH_QOS_dev.c     | 6 +++---
+ DWC_ETH_QOS_drv.c     | 1 +
+ DWC_ETH_QOS_yapphdr.h | 1 +
+ 3 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/DWC_ETH_QOS_dev.c b/DWC_ETH_QOS_dev.c
+index 465cafb..3d0eb34 100644
+--- a/DWC_ETH_QOS_dev.c
++++ b/DWC_ETH_QOS_dev.c
+@@ -3832,15 +3832,15 @@ static INT configure_dma_tx_channel(UINT chInx,
+ 	enable_dma_tx_interrupts(chInx);
+ 
+ 	/* set TX PBL = 128 bytes */
+-  	DMA_TXCHCTL_TXPBL_UdfWr(chInx, 16);
++  	DMA_TXCHCTL_TXPBL_UdfWr(chInx, 48);
+ 
+     /* To get Best Performance */
+     DMA_BUSCFG_BLEN16_UdfWr(1);
+     DMA_BUSCFG_BLEN8_UdfWr(1);
+     DMA_BUSCFG_BLEN4_UdfWr(1);
+     
+-    DMA_BUSCFG_RD_OSR_LMT_UdfWr(15);
+-    DMA_BUSCFG_WR_OSR_LMT_UdfWr(15);
++    DMA_BUSCFG_RD_OSR_LMT_UdfWr(4);
++    DMA_BUSCFG_WR_OSR_LMT_UdfWr(4);
+ 
+     DMA_TXCHCTL_ST_UdfWr(chInx, 0x1);
+ 
+diff --git a/DWC_ETH_QOS_drv.c b/DWC_ETH_QOS_drv.c
+index ba53f47..12fbcf6 100644
+--- a/DWC_ETH_QOS_drv.c
++++ b/DWC_ETH_QOS_drv.c
+@@ -6455,6 +6455,7 @@ static void DWC_ETH_QOS_config_rx_pbl(struct DWC_ETH_QOS_prv_data *pdata,
+ 	case DWC_ETH_QOS_PBL_8:
+ 	case DWC_ETH_QOS_PBL_16:
+ 	case DWC_ETH_QOS_PBL_32:
++	case DWC_ETH_QOS_PBL_48:
+ 		hw_if->config_rx_pbl_val(chInx, rx_pbl);
+ 		hw_if->config_pblx8(chInx, 0);
+ 		break;
+diff --git a/DWC_ETH_QOS_yapphdr.h b/DWC_ETH_QOS_yapphdr.h
+index 87df229..7342412 100644
+--- a/DWC_ETH_QOS_yapphdr.h
++++ b/DWC_ETH_QOS_yapphdr.h
+@@ -233,6 +233,7 @@
+ #define DWC_ETH_QOS_PBL_8	8
+ #define DWC_ETH_QOS_PBL_16	16
+ #define DWC_ETH_QOS_PBL_32	32
++#define DWC_ETH_QOS_PBL_48	48
+ #define DWC_ETH_QOS_PBL_64	64	/* 8 x 8 */
+ #define DWC_ETH_QOS_PBL_128	128	/* 8 x 16 */
+ #define DWC_ETH_QOS_PBL_256	256	/* 8 x 32 */
+-- 
+2.7.4
+

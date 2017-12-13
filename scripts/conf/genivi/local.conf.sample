@@ -1,0 +1,149 @@
+DISTRO ?= "poky-ivi-systemd"
+INCOMPATIBLE_LICENSE ?= "GPLv3"
+PACKAGE_CLASSES ?= "package_rpm"
+EXTRA_IMAGE_FEATURES = "debug-tweaks"
+USER_CLASSES ?= "buildstats image-mklibs image-prelink"
+
+PATCHRESOLVE = "noop"
+
+BB_DISKMON_DIRS = "\
+    STOPTASKS,${TMPDIR},1G,100K \
+    STOPTASKS,${DL_DIR},1G,100K \
+    STOPTASKS,${SSTATE_DIR},1G,100K \
+    ABORT,${TMPDIR},100M,1K \
+    ABORT,${DL_DIR},100M,1K \
+    ABORT,${SSTATE_DIR},100M,1K"
+
+#
+# Qemu configuration
+#
+# By default qemu will build with a builtin VNC server where graphical output can be
+# seen. The two lines below enable the SDL backend too. This assumes there is a
+# libsdl library available on your build system.
+#PACKAGECONFIG_append_pn-qemu-native = " sdl"
+#PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
+#ASSUME_PROVIDED += "libsdl-native"
+
+
+# CONF_VERSION is increased each time build/conf/ changes incompatibly and is used to
+# track the version of this file when it was generated. This can safely be ignored if
+# this doesn't mean anything to you.
+CONF_VERSION = "1"
+
+SANITY_TESTED_DISTROS ?= "Ubuntu-15.04"
+
+#####################################################################################
+# added more configuration
+#####################################################################################
+BB_NUMBER_THREADS = "16"
+MACHINE = "automotive-samsung-e8"
+DL_DIR ?= "${TOPDIR}/../shared/downloads"
+SSTATE_DIR ?= "${TOPDIR}/../shared/sstate-cache"
+PREMIRRORS_prepend = ".*://.*/.* file://12.36.155.244/yocto_mirror/ \n "
+#this is for testing PREMIRROR, you don't need to activate this variable
+#BB_FETCH_PREMIRRORONLY = "1"
+
+
+#We don't keep previous deploy image
+RM_OLD_IMAGE = "1"
+
+CORE_IMAGE_BASE_INSTALL_append = " \
+		packagegroup-base-serial \
+		packagegroup-base-usbhost \
+"
+
+
+# Genivi config to avoid compile error @ ARM arch(no QEMU case)
+MACHINE_FEATURES_remove ="qemu-usermode"
+
+# Genivi test config
+IMAGE_INSTALL_append += " \
+    test-fw \
+    common-api-test \
+    wayland-ivi-extension-test \
+    persistence-administrator-test \
+    persistence-client-library-test \
+    persistence-common-object-test \
+    dlt-daemon-test \
+    node-state-manager-test \
+    node-health-monitor-test \
+    node-startup-controller-nsm-dummy glib-2.0-utils \
+    bluez5-noinst-tools bluez5-test \
+    ltp \
+"
+CORE_IMAGE_EXTRA_INSTALL_append += " \
+		exynos-firmware \
+		kernel-modules \
+		exynos-video-demo \
+		weston-init-custom \
+"
+
+SYSTEMD_DEFAULT_TARGET="multi-user.target"
+
+# regarding GPU enable
+PREFERRED_PROVIDER_virtual/egl ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libgles1 ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libgles2 ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libopencl ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libwayland-egl ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_libgbm = "mali-userspace-t8xx"
+PREFERRED_PROVIDER_libgbm-dev = "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libgl ?= "mesa"
+PREFERRED_PROVIDER_virtual/mesa ?= "mesa"
+CORE_IMAGE_EXTRA_INSTALL_append = "mali-userspace-t8xx"
+
+# to avoid GPU package error with RPM configuration
+PACKAGE_CLASSES="package_ipk package_rpm"
+#MULTI_PROVIDER_WHITELIST +="virtual/egl virtual/libgles1 virtual/libgles2 virtual/libopencl"
+
+# new configuration for Gstreamer
+PREFERRED_VERSION_gstreamer1.0 = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-base = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-good = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-bad = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-ugly = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-libav = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-omx = "1.2.0"
+PREFERRED_VERSION_libomxil = "exynos"
+
+CORE_IMAGE_EXTRA_INSTALL_append += " \
+		gstreamer1.0-omx \
+		gstreamer1.0-libav \
+		gstreamer1.0-plugins-base \
+		gstreamer1.0-plugins-good \
+		gstreamer1.0-plugins-bad \
+		gstreamer1.0-plugins-bad-meta \
+"
+LICENSE_FLAGS_WHITELIST += "commercial_gstreamer1.0-omx commercial_libomxil commercial_gstreamer1.0-libav"
+
+CORE_IMAGE_EXTRA_INSTALL_append += " android-adb"
+
+# to remove root passwd
+EXTRA_USERS_PARAMS = ""
+
+# System essential package list
+IMAGE_INSTALL_append += " \
+	drm-test \
+	iozone3 \
+	spitools \
+	i2c-tools \
+	lrzsz \
+	pciutils \
+"
+
+# Neutrino PCIe-EMAC driver module
+IMAGE_INSTALL_append += " \
+	neutrino-pcie \
+"
+
+# TTTech gPTP driver module
+IMAGE_INSTALL_append += " \
+	gptp \
+"
+
+# specific kernel/uboot version to build
+# to activte with setting SEL_SPECIFIC_REV_FLAG = "1", not to activate with ="0"
+SEL_SPECIFIC_REV_FLAG = "1"
+SEL_KERNEL_SPECIFIC_REV = "${AUTOREV}"
+SEL_KERNEL_SPECIFIC_DEFCONFIG ="exynos8890-at3_defconfig"
+SEL_KERNEL_SPECIFIC_DT="exynos8890-at3.dtb"

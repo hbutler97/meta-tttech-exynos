@@ -1,0 +1,153 @@
+DISTRO = "sel-automotive"
+
+# Disable 3g by default, as most won't need it.
+#USER_FEATURES += "~3g"
+SDKMACHINE ?= "x86_64"
+
+USER_CLASSES ?= "buildstats buildstats-summary image-mklibs"
+
+BB_DISKMON_DIRS = "\
+    STOPTASKS,${TMPDIR},1G,100K \
+    STOPTASKS,${DL_DIR},1G,100K \
+    STOPTASKS,${SSTATE_DIR},1G,100K \
+    ABORT,${TMPDIR},100M,1K \
+    ABORT,${DL_DIR},100M,1K \
+    ABORT,${SSTATE_DIR},100M,1K"
+
+# this doesn't mean anything to you.
+CONF_VERSION = "1"
+
+SANITY_TESTED_DISTROS ?= "Ubuntu-15.04"
+
+#####################################################################################
+# added more configuration
+#####################################################################################
+BB_NUMBER_THREADS = "16"
+MACHINE = "automotive-samsung-e8"
+IMAGE_FEATURES_remove = "x11-base x11 codebench-debug tools-profile"
+
+DL_DIR ?= "${TOPDIR}/../shared/downloads"
+SSTATE_DIR ?= "${TOPDIR}/../shared/sstate-cache"
+PREMIRRORS_prepend = ".*://.*/.* file://12.36.155.244/yocto_mirror/ \n "
+#this is for testing PREMIRROR, you don't need to activate this variable
+#BB_FETCH_PREMIRRORONLY = "1"  
+
+
+#We don't keep previous deploy image 
+RM_OLD_IMAGE = "1"
+
+# Prefer the cached upstream SCM revisions
+#BB_SRCREV_POLICY = "cache"
+# adding some features
+#EXTRA_IMAGE_FEATURES_append = " read-only-rootfs"
+
+
+
+CORE_IMAGE_BASE_INSTALL_append = " \
+		packagegroup-base-serial \
+		packagegroup-base-usbhost \
+"
+
+CORE_IMAGE_EXTRA_INSTALL_append = " \
+		exynos-video-demo \
+		exynos-firmware \
+		kernel-modules \
+		fbset \
+		fbset-modes \
+		fbgrab \
+		e2fsprogs-e2fsck \
+		e2fsprogs-mke2fs \
+		pciutils \
+		dosfstools \
+		usbdisk \
+		gptfdisk \
+"
+
+CORE_IMAGE_EXTRA_INSTALL_append += " \
+		alsa-utils-speakertest \
+		alsa-utils \
+		alsa-utils-alsamixer \
+		alsa-utils-midi \
+		alsa-utils-aplay \
+		alsa-utils-amixer \
+		alsa-utils-aconnect \
+		alsa-utils-iecset \
+		alsa-utils-speakertest \
+		alsa-utils-aseqnet \
+		alsa-utils-aseqdump \
+		alsa-utils-alsactl \
+		alsa-utils-alsaloop \
+		alsa-utils-alsaucm \
+"
+CORE_IMAGE_EXTRA_INSTALL_append += " \
+                mali-userspace-t8xx \
+"
+
+CORE_IMAGE_EXTRA_INSTALL_append += " \
+		wayland \
+		weston \
+		weston-examples \
+		weston-init-custom \
+"
+
+DISTRO_FEATURES_append = " systemd"
+VIRTUAL-RUNTIME_init_manager = "systemd"
+
+# please keep this variable for BSP
+SYSTEMD_DEFAULT_TARGET="graphical.target"
+
+# regarding GPU enable
+PREFERRED_PROVIDER_virtual/egl ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libgles1 ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libgles2 ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libopencl ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libwayland-egl ?= "mali-userspace-t8xx"
+PREFERRED_PROVIDER_libgbm = "mali-userspace-t8xx"
+PREFERRED_PROVIDER_libgbm-dev = "mali-userspace-t8xx"
+PREFERRED_PROVIDER_virtual/libgl ?= "mesa"
+PREFERRED_PROVIDER_virtual/mesa ?= "mesa"
+CORE_IMAGE_EXTRA_INSTALL_append = "mali-userspace-t8xx"
+
+# to avoid GPU package error with RPM configuration
+PACKAGE_CLASSES="package_ipk package_rpm"
+#MULTI_PROVIDER_WHITELIST +="virtual/egl virtual/libgles1 virtual/libgles2 virtual/libopencl"
+
+# new configuration for Gstreamer 
+PREFERRED_VERSION_gstreamer1.0 = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-base = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-good = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-bad = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-plugins-ugly = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-libav = "1.8.3"
+PREFERRED_VERSION_gstreamer1.0-omx = "1.2.0"
+PREFERRED_VERSION_libomxil = "exynos"
+
+CORE_IMAGE_EXTRA_INSTALL_append += " \
+		gstreamer1.0-omx \
+		gstreamer1.0-libav \
+		gstreamer1.0-plugins-base \
+		gstreamer1.0-plugins-good \
+		gstreamer1.0-plugins-bad \
+		gstreamer1.0-plugins-bad-meta \
+"
+
+LICENSE_FLAGS_WHITELIST += "commercial_gstreamer1.0-omx commercial_libomxil commercial_gstreamer1.0-libav"
+
+CORE_IMAGE_EXTRA_INSTALL_append += " android-adb"
+
+# System essential package list
+IMAGE_INSTALL_append += " \
+	drm-test \
+	iozone3 \
+	spitools \
+	i2c-tools \
+"
+
+# specific kernel/uboot version to build
+# to activte with setting SEL_SPECIFIC_REV_FLAG = "1", not to activate with ="0"
+SEL_SPECIFIC_REV_FLAG = "1"
+SEL_KERNEL_SPECIFIC_REV = "Aura-KernelVersion-6B10R1"
+SEL_KERNEL_SPECIFIC_DEFCONFIG ="sadk8890_defconfig"
+SEL_KERNEL_SPECIFIC_DT="exynos8890-sadk8890.dtb"
+SEL_UBOOT_SPECIFIC_REV = "Aura-UbootVersion-6B10R1"
+SEL_UBOOT_SPECIFIC_BRANCH ="automotive-exynos-dev"

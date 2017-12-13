@@ -1,0 +1,77 @@
+From 2d28a7020ced7a3c4d6700fb1a0676267a8b6bb0 Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Tue, 13 Jun 2017 12:26:15 +0200
+Subject: [PATCH] ADAS-3619: add kernel configuration to enable the PCIe
+ channel 1 from Exynos board. pcie.c file provided by Samsung is integrated,
+ and some necessary modifications are done in Makefile and Kbuild files.
+
+---
+ drivers/pci/pcie/Kconfig  | 10 ++++++++++
+ drivers/pci/pcie/Makefile |  3 +++
+ drivers/pci/pcie/pcie.c   | 25 +++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+)
+ create mode 100644 drivers/pci/pcie/pcie.c
+
+diff --git a/drivers/pci/pcie/Kconfig b/drivers/pci/pcie/Kconfig
+index cb9d4f0..da8950e 100644
+--- a/drivers/pci/pcie/Kconfig
++++ b/drivers/pci/pcie/Kconfig
+@@ -80,3 +80,13 @@ endchoice
+ config PCIE_PME
+ 	def_bool y
+ 	depends on PCIEPORTBUS && PM_RUNTIME
++
++#
++# PCI Express Channel1 Exynos8890
++#
++config PCIE_CH1_EXYNOS8890
++	bool "PCI Express Channel1 Exynos8890"
++	depends on PCIEPORTBUS
++	default y
++	help
++	  Enable PCIe channel nubmer 1 from Exynos8890.
+diff --git a/drivers/pci/pcie/Makefile b/drivers/pci/pcie/Makefile
+index 00c62df..f73e18f 100644
+--- a/drivers/pci/pcie/Makefile
++++ b/drivers/pci/pcie/Makefile
+@@ -14,3 +14,6 @@ obj-$(CONFIG_PCIEPORTBUS)	+= pcieportdrv.o
+ obj-$(CONFIG_PCIEAER)		+= aer/
+ 
+ obj-$(CONFIG_PCIE_PME) += pme.o
++
++# Build PCI Express Channel1 Exynos8890 if needed
++obj-$(CONFIG_PCIE_CH1_EXYNOS8890) += pcie.o
+diff --git a/drivers/pci/pcie/pcie.c b/drivers/pci/pcie/pcie.c
+new file mode 100644
+index 0000000..d69d153
+--- /dev/null
++++ b/drivers/pci/pcie/pcie.c
+@@ -0,0 +1,25 @@
++#include <linux/init.h>
++#include <linux/platform_device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/regulator/consumer.h>
++#include <linux/pci.h>
++
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("shobhit.k1@samsung.com");
++
++
++#define SLSI_PCIE_CH_NUM 1
++extern void exynos_pcie_poweron(int);
++extern void exynos_pcie_poweroff(int);
++
++static int pcie_init(void) 
++{
++	exynos_pcie_poweron(SLSI_PCIE_CH_NUM);
++	printk(KERN_INFO "pciew1 enabled\n");
++
++	return 0;
++}
++
++late_initcall(pcie_init);
+-- 
+2.7.4
+

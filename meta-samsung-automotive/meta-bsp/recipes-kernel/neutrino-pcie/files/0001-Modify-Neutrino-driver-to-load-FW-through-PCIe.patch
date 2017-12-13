@@ -1,0 +1,137 @@
+From f1211fc1b484741e7b3c11de120c2386252d0864 Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Tue, 20 Jun 2017 14:54:17 +0200
+Subject: [PATCH] ADAS-3974: modify Neutrino reference driver (host driver) in
+ order to load the firmware and de-assert ARM Cortex-M3 reset, both through
+ PCIe interface.
+
+---
+ DWC_ETH_QOS_pci.c     | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ DWC_ETH_QOS_pci.h     |  2 ++
+ DWC_ETH_QOS_yregacc.h |  6 +++++
+ 3 files changed, 82 insertions(+)
+
+diff --git a/DWC_ETH_QOS_pci.c b/DWC_ETH_QOS_pci.c
+index bc2712e..ee6f49c 100644
+--- a/DWC_ETH_QOS_pci.c
++++ b/DWC_ETH_QOS_pci.c
+@@ -82,6 +82,11 @@
+ #include "DWC_ETH_QOS_yheader.h"
+ #include "DWC_ETH_QOS_pci.h"
+ 
++/* Kernel firmware interface */
++#include <linux/firmware.h>
++/* NTN register access */
++#include "DWC_ETH_QOS_yregacc.h"
++
+ static UCHAR dev_addr[6] = { 0xE8, 0xE0, 0xB7, 0xB5, 0x7D, 0xF8};   
+ typedef struct
+ {
+@@ -568,6 +573,15 @@ static int DWC_ETH_QOS_probe(struct pci_dev *pdev,
+ 	dev->irq = pdev->irq;
+         NDBGPR_L1( "Allocated IRQ Number = %d\n", dev->irq); 
+ 
++	/* Load NTN firmware */
++	ret = DWC_ETH_QOS_load_ntn_firmware(pdev);
++	if (0 != ret) {
++		/* error handling */
++	        NMSGPR_ALERT( "ERROR: Unable to load NTN firmware\n");
++		goto err_out_msi_failed;
++
++	}
++
+ 	DWC_ETH_QOS_get_all_hw_features(pdata);
+ 	DWC_ETH_QOS_print_all_hw_features(pdata);
+ 
+@@ -1050,3 +1064,63 @@ MODULE_DESCRIPTION("Neutrino Driver");
+ * \details This macro is used to describe the module license.
+ */
+ MODULE_LICENSE("GPL");
++
++/*!
++* \brief Load NTN firmware from binary file into SRAM using kernel firmware
++* interface.
++*
++* \details This function performs following steps:
++* \  - Check if host initiated boot mode is selected by mode option.
++* \  - Assert NTN Cortex M3 system reset.
++* \  - Copies NTN firmware from a binary file into SRAM.
++* \  - De-assert NTN Cortex M3 cold and system reset.
++*
++* \param[in] pdev - pointer to pci_dev structure.
++*
++* \return integer
++*
++* \retval 0 on success & -ve number on failure.
++*/
++static int DWC_ETH_QOS_load_ntn_firmware(struct pci_dev *pdev) {
++	ULONG reg_val;
++	const struct firmware *pfw = NULL;
++ 
++	NMSGPR_ALERT("DWC_ETH_QOS: Start firmware load");
++ 
++	/* Check for host initiated boot mode */
++	NTN_NMODESTS_RgRd(reg_val);
++	if ( (reg_val & 0x40) != 0x40 ) {
++		NMSGPR_ALERT("DWC_ETH_QOS: NMODESTS=0x%X => Boot from flash, firmware won't be loaded by the driver", (unsigned int)reg_val);
++		return -EINVAL;
++	}
++ 
++	/* Get NTN FW binary through kernel firmware interface request */
++	if (request_firmware(&pfw, "fw_OSLess_HWSeq_emac_tdm_can_v2.4.bin", &pdev->dev) != 0) {
++		NMSGPR_ALERT("DWC_ETH_QOS: Error in calling request_firmware");
++		return -EINVAL;
++	}
++	if (pfw == NULL) {
++		NMSGPR_ALERT("DWC_ETH_QOS: request_firmware: pfw == NULL");
++		return -EINVAL;
++	}
++ 
++	/* Read current value of NRSTCTRL register */
++	NTN_NRSTCTRL_RgRd(reg_val);
++ 
++	/* Assert NTN CM3 system reset (NRSTCTRL.MCU0RST) */
++	NTN_NRSTCTRL_RgWr(reg_val | 1);
++ 
++	/* Copy NTN FW to SRAM */
++	memcpy((char*)dwc_eth_ntn_SRAM_pci_base_addr_virt, pfw->data, pfw->size);
++ 
++	/* De-assert NTN CM3 cold and system reset (NRSTCTRL.MCU1RST and NRSTCTRL.MCU0RST) */
++	NTN_NRSTCTRL_RgWr(reg_val & ~0x3);
++ 
++	/* Release kernel firmware interface */
++	release_firmware(pfw);
++ 
++	NMSGPR_ALERT("DWC_ETH_QOS: Firmware loaded");
++ 
++	return 0;
++} 
++
+diff --git a/DWC_ETH_QOS_pci.h b/DWC_ETH_QOS_pci.h
+index 54b755b..eadcfe0 100644
+--- a/DWC_ETH_QOS_pci.h
++++ b/DWC_ETH_QOS_pci.h
+@@ -97,4 +97,6 @@ static INT DWC_ETH_QOS_resume(struct pci_dev *);
+ bool isMAC(char *s);
+ static bool lookfor_macid(char *);
+ 
++static int DWC_ETH_QOS_load_ntn_firmware(struct pci_dev *);
++
+ #endif
+diff --git a/DWC_ETH_QOS_yregacc.h b/DWC_ETH_QOS_yregacc.h
+index 086501a..55bc1b1 100644
+--- a/DWC_ETH_QOS_yregacc.h
++++ b/DWC_ETH_QOS_yregacc.h
+@@ -30100,3 +30100,9 @@
+ 
+ 
+ #define MII_AUX_CTRL		0x12	/* Auxillary control register */
++
++/* Read access to NTN operation mode register NMODESTS */
++#define NTN_NMODESTS_RgRd(data) do {\
++	(data) = ioread32((void *)NTN_NMODESTS_RgOffAddr);\
++} while(0)
++
+-- 
+2.7.4
+

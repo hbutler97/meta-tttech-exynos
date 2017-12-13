@@ -1,0 +1,44 @@
+From d517cbd0cc01554cfe0bd9e46d0ea24f4f8c4ee8 Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Tue, 25 Jul 2017 12:10:44 +0200
+Subject: [PATCH] ADAS-3617: Modify registers according to GG's suggestion.
+
+---
+ DWC_ETH_QOS_dev.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/DWC_ETH_QOS_dev.c b/DWC_ETH_QOS_dev.c
+index 465cafb..54040e8 100644
+--- a/DWC_ETH_QOS_dev.c
++++ b/DWC_ETH_QOS_dev.c
+@@ -3832,15 +3832,23 @@ static INT configure_dma_tx_channel(UINT chInx,
+ 	enable_dma_tx_interrupts(chInx);
+ 
+ 	/* set TX PBL = 128 bytes */
+-  	DMA_TXCHCTL_TXPBL_UdfWr(chInx, 16);
++    if(chInx == 2) {
++      DBGPR("-->Hector was (also) here! Channel 2\n");
++      DMA_TXCHCTL_TXPBL_UdfWr(chInx, 0x30);  
++    }
++    else {
++      DBGPR("-->...and here! Channel !2\n");
++      DMA_TXCHCTL_TXPBL_UdfWr(chInx, 16);  
++    } 
+ 
+     /* To get Best Performance */
+     DMA_BUSCFG_BLEN16_UdfWr(1);
+     DMA_BUSCFG_BLEN8_UdfWr(1);
+     DMA_BUSCFG_BLEN4_UdfWr(1);
+-    
+-    DMA_BUSCFG_RD_OSR_LMT_UdfWr(15);
+-    DMA_BUSCFG_WR_OSR_LMT_UdfWr(15);
++
++    DBGPR("--> Hector was here\n");
++    DMA_BUSCFG_RD_OSR_LMT_UdfWr(0x4);
++    DMA_BUSCFG_WR_OSR_LMT_UdfWr(0x4);
+ 
+     DMA_TXCHCTL_ST_UdfWr(chInx, 0x1);
+ 
+-- 
+2.7.4
+

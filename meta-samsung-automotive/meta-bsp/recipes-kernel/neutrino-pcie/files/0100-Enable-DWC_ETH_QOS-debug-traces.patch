@@ -1,0 +1,55 @@
+From 0063e377f96e8b59848b40a19624b8581aef9fc4 Mon Sep 17 00:00:00 2001
+From: Daniel <daniel.gomez@silicon-gears.com>
+Date: Tue, 30 May 2017 15:36:58 +0200
+Subject: [PATCH 1/2] Enable DWC_ETH_QOS debug traces
+
+---
+ DWC_ETH_QOS_yheader.h | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/DWC_ETH_QOS_yheader.h b/DWC_ETH_QOS_yheader.h
+index 74fee04..b045433 100644
+--- a/DWC_ETH_QOS_yheader.h
++++ b/DWC_ETH_QOS_yheader.h
+@@ -1,6 +1,6 @@
+ /* ============================================================================
+-* COPYRIGHT © 2015
+-*
++* COPYRIGHT ï¿½ 2015*
++* COPYRIGHT ï¿½ 2015*
+ * Toshiba America Electronic Components
+ *
+ * PROJECT:   NEUTRINO
+@@ -94,9 +94,9 @@
+ 
+ //Neutrino Debugging
+ #define NTN_DEBUG_L1	
+-//#define NTN_DEBUG_L2		
+-//#define NTN_DEBUG_TS1
+-//#define NTN_DEBUG_TS2
++#define NTN_DEBUG_L2
++#define NTN_DEBUG_TS1
++#define NTN_DEBUG_TS2
+ //#define NTN_AVB_LAUNCHTIME_DUMP
+ //#define NTN_AVB_LAUNCHTIME_TS_CAPTURE_DUMP
+ 
+@@ -321,11 +321,11 @@
+ #endif
+ 
+ /* NOTE: Uncomment below line for function trace log messages in KERNEL LOG */
+-//#define YDEBUG
+-//#define YDEBUG_MDIO
+-//#define YDEBUG_PTP
+-//#define YDEBUG_FILTER
+-//#define YDEBUG_EEE
++#define YDEBUG
++#define YDEBUG_MDIO
++#define YDEBUG_PTP
++#define YDEBUG_FILTER
++#define YDEBUG_EEE
+ 
+ #define Y_TRUE 1
+ #define Y_FALSE 0
+-- 
+2.7.4
+

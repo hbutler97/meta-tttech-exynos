@@ -1,0 +1,25 @@
+From aa1a7e7c97e79fbe976131018ffc47c67b9828b7 Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Wed, 28 Jun 2017 14:19:28 +0200
+Subject: [PATCH] ADAS-3974: loopback test enabled.
+
+---
+ DWC_ETH_QOS_yheader.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/DWC_ETH_QOS_yheader.h b/DWC_ETH_QOS_yheader.h
+index 74fee04..a14313e 100644
+--- a/DWC_ETH_QOS_yheader.h
++++ b/DWC_ETH_QOS_yheader.h
+@@ -133,7 +133,7 @@
+ #define NTN_RX_PKT_AVB			    (NTN_RX_DMA_CH_5)
+ 
+ //TEST Macros
+-//#define NTN_DRV_TEST_LOOPBACK
++#define NTN_DRV_TEST_LOOPBACK
+ 
+ #define NTN_TX_DMA_CH_CNT (pdata->tx_dma_ch_cnt)
+ #define NTN_RX_DMA_CH_CNT (pdata->rx_dma_ch_cnt)
+-- 
+2.7.4
+

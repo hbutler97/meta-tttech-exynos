@@ -1,0 +1,158 @@
+From ce28118228a641c84384bd40a0f73fe49180077c Mon Sep 17 00:00:00 2001
+From: Manuel Huber <manuel.huber@tttech-automotive.com>
+Date: Wed, 21 Sep 2016 21:52:02 +0200
+Subject: [PATCH] TTXLOG-744: Add fetcher for Artifactory
+
+- Add CurlKerberos fetcher which can be used together with krb5
+  package to retrieve files from Artifactory
+---
+ bitbake/lib/bb/fetch2/__init__.py | 10 ++++-
+ bitbake/lib/bb/fetch2/curl.py     | 92 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 100 insertions(+), 2 deletions(-)
+ create mode 100644 bitbake/lib/bb/fetch2/curl.py
+
+diff --git a/bitbake/lib/bb/fetch2/__init__.py b/bitbake/lib/bb/fetch2/__init__.py
+index 7773c16..f40ec5a 100644
+--- a/bitbake/lib/bb/fetch2/__init__.py
++++ b/bitbake/lib/bb/fetch2/__init__.py
+@@ -1147,6 +1147,10 @@ class FetchData(object):
+     A class which represents the fetcher state for a given URI.
+     """
+     def __init__(self, url, d, localonly = False):
++        base_checksum_types = ["http", "https", "ftp", "ftps",
++                               "sftp", "https_kerberos"]
++        expected_md5_types = base_checksum_types
++        expected_sha256_types = base_checksum_types
+         # localpath is the location of a downloaded result. If not set, the file is local.
+         self.donestamp = None
+         self.needdonestamp = True
+@@ -1173,13 +1177,13 @@ class FetchData(object):
+             self.sha256_name = "sha256sum"
+         if self.md5_name in self.parm:
+             self.md5_expected = self.parm[self.md5_name]
+-        elif self.type not in ["http", "https", "ftp", "ftps", "sftp"]:
++        elif self.type not in expected_md5_types:
+             self.md5_expected = None
+         else:
+             self.md5_expected = d.getVarFlag("SRC_URI", self.md5_name, True)
+         if self.sha256_name in self.parm:
+             self.sha256_expected = self.parm[self.sha256_name]
+-        elif self.type not in ["http", "https", "ftp", "ftps", "sftp"]:
++        elif self.type not in expected_sha256_types:
+             self.sha256_expected = None
+         else:
+             self.sha256_expected = d.getVarFlag("SRC_URI", self.sha256_name, True)
+@@ -1756,6 +1760,7 @@ from . import osc
+ from . import repo
+ from . import clearcase
+ from . import npm
++from . import curl
+ 
+ methods.append(local.Local())
+ methods.append(wget.Wget())
+@@ -1773,3 +1778,4 @@ methods.append(osc.Osc())
+ methods.append(repo.Repo())
+ methods.append(clearcase.ClearCase())
+ methods.append(npm.Npm())
++methods.append(curl.CurlKerberos())
+diff --git a/bitbake/lib/bb/fetch2/curl.py b/bitbake/lib/bb/fetch2/curl.py
+new file mode 100644
+index 0000000..425b0ea
+--- /dev/null
++++ b/bitbake/lib/bb/fetch2/curl.py
+@@ -0,0 +1,92 @@
++# Copyright (C) 2016, Manuel Huber <manuel.huber@tttech-automotive.com>
++#
++# Based in part on bb.fetch2.wget:
++#    Copyright (C) 2003, 2004  Chris Larson
++# and on parts of bb.fetch2.sftp:
++#    Copyright (C) 2003, Olof Johansson
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 2 as
++# published by the Free Software Foundation.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License along
++# with this program; if not, write to the Free Software Foundation, Inc.,
++# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++#
++# Based on functions from the base bb module, Copyright 2003 Holger Schurig
++
++import os
++import bb
++import urllib
++import commands
++from bb import data
++from bb.fetch2 import URI
++from bb.fetch2 import FetchMethod
++from bb.fetch2 import runfetchcmd
++from bb.fetch2 import logger
++
++
++class CurlKerberos(FetchMethod):
++    """Class to fetch urls via 'https'"""
++
++    def supports(self, ud, d):
++        """
++        Check to see if a given url can be fetched with curl.
++        """
++        return ud.type in ['https_kerberos']
++
++    def recommends_checksum(self, urldata):
++        return True
++
++    def supports_checksum(self, urldata):
++        return True
++
++    def try_premirror(self, ud, d):
++        return False
++
++    def urldata_init(self, ud, d):
++        if 'downloadfilename' in ud.parm:
++            ud.basename = ud.parm['downloadfilename']
++        else:
++            ud.basename = os.path.basename(ud.path)
++
++        ud.localfile = data.expand(urllib.unquote(ud.basename), d)
++        if not ud.localfile:
++            ud.localfile = data.expand(urllib.unquote(ud.host + ud.path).replace("/", "."), d)
++        self.basecmd = "/usr/bin/env curl --negotiate --user : "
++
++    def download(self, ud, d):
++        """Fetch urls"""
++
++        fetchcmd = self.basecmd
++
++        if 'downloadfilename' in ud.parm:
++            dldir = d.getVar("DL_DIR", True)
++            bb.utils.mkdirhier(os.path.dirname(dldir + os.sep + ud.localfile))
++            fetchcmd += " -o " + dldir + os.sep + ud.localfile
++        else:
++            fetchcmd += " -o " + ud.localpath
++
++        uri = ud.url.split(";")[0]
++        if os.path.exists(ud.localpath):
++            bb.warn("Overriding {0}".format(ud.localpath))
++
++        fetchcmd += " '{0}'".format(uri.replace('https_kerberos://','https://'))
++
++        logger.debug(2, "Fetching %s using command '%s'" % (ud.url, fetchcmd))
++        bb.fetch2.check_network_access(d, fetchcmd)
++        runfetchcmd(fetchcmd, d, False)
++
++        if not os.path.exists(ud.localpath):
++            raise FetchError("The fetch command returned success for url %s but %s doesn't exist?!" % (uri, ud.localpath), uri)
++
++        if os.path.getsize(ud.localpath) == 0:
++            os.remove(ud.localpath)
++            raise FetchError("The fetch of %s resulted in a zero size file?! Deleting and failing since this isn't right." % (uri), uri)
++        return True
++
+-- 
+2.7.4
+

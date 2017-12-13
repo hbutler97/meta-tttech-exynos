@@ -1,0 +1,28 @@
+From 989cc02a843e3211be10ef7d273d536ebe341c8e Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Wed, 15 Nov 2017 15:02:59 +0100
+Subject: [PATCH] ADAS-4552: Add extra condition on 'if' to accept also PCIe
+ channel 0 (channel 1 was the only accepted before this change.)
+
+Signed-off-by: Hector Banos <extern.hector.banos-marin@tttech.com>
+---
+ drivers/pci/host/pci-exynos.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/host/pci-exynos.c b/drivers/pci/host/pci-exynos.c
+index 1b4fcb4..0867673 100644
+--- a/drivers/pci/host/pci-exynos.c
++++ b/drivers/pci/host/pci-exynos.c
+@@ -384,7 +384,8 @@ retry:
+ 		} else {
+ 			exynos_pcie_print_link_history(pp);
+ 			if (of_device_is_compatible(pp->dev->of_node,
+-					"samsung,exynos8890-pcie") && (exynos_pcie->ch_num == 1)) {
++					"samsung,exynos8890-pcie") && ((exynos_pcie->ch_num == 1) ||
++					(exynos_pcie->ch_num == 0))) {
+ 				return -EPIPE;
+ 			}
+ 			BUG_ON(1);
+-- 
+2.7.4
+

@@ -1,0 +1,25 @@
+From 5cf241a260b7549d7b7a270176f09089f41ecfa5 Mon Sep 17 00:00:00 2001
+From: Hector Banos <extern.hector.banos-marin@tttech.com>
+Date: Wed, 2 Aug 2017 17:42:11 +0200
+Subject: [PATCH] ADAS-3416: modify MAC address value.
+
+---
+ DWC_ETH_QOS_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/DWC_ETH_QOS_pci.c b/DWC_ETH_QOS_pci.c
+index bc2712e..90f805b 100644
+--- a/DWC_ETH_QOS_pci.c
++++ b/DWC_ETH_QOS_pci.c
+@@ -82,7 +82,7 @@
+ #include "DWC_ETH_QOS_yheader.h"
+ #include "DWC_ETH_QOS_pci.h"
+ 
+-static UCHAR dev_addr[6] = { 0xE8, 0xE0, 0xB7, 0xB5, 0x7D, 0xF8};   
++static UCHAR dev_addr[6] = { 0x8A, 0x23, 0xFE, 0x00, 0x00, 0x07};
+ typedef struct
+ {
+ 	char key[32];
+-- 
+2.7.4
+

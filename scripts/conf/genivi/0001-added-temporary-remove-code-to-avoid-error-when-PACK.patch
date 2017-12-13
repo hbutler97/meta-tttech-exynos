@@ -1,0 +1,26 @@
+From 237ffec62ccc3f37b1fc93b7fc77c49f9f3a7696 Mon Sep 17 00:00:00 2001
+From: Jongseok Park <js0526.park@samsung.com>
+Date: Mon, 3 Oct 2016 13:52:25 +0900
+Subject: [PATCH] added temporary remove code to avoid error when
+ PACKAGE_CLASSES="package_ipk is set
+
+Signed-off-by: Jongseok Park <js0526.park@samsung.com>
+---
+ .../node-startup-controller/node-startup-controller_1.0.2.bb          | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/meta-ivi/recipes-extended/node-startup-controller/node-startup-controller_1.0.2.bb b/meta-ivi/recipes-extended/node-startup-controller/node-startup-controller_1.0.2.bb
+index 755fe85..1fcaea1 100644
+--- a/meta-ivi/recipes-extended/node-startup-controller/node-startup-controller_1.0.2.bb
++++ b/meta-ivi/recipes-extended/node-startup-controller/node-startup-controller_1.0.2.bb
+@@ -56,3 +56,7 @@ FILES_${PN}-nsm-dummy = "\
+ FILES_${PN}-nsm-dummy-dbg = "\
+     ${libdir}/${BPN}-1/.debug/nsm-dummy \
+     "
++## jspark added for issue - PACKAGE_CLASSES="package_ipk package_rpm"
++do_install_append() {
++    rm -f ${D}${sysconfdir}/dbus-1/system.d/org.genivi.NodeStateManager.conf
++}
+-- 
+2.1.4
+

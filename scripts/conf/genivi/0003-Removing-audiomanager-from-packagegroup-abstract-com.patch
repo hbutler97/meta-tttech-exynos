@@ -1,0 +1,23 @@
+From b43d03b68b7773603d06ef4090cce82589594158 Mon Sep 17 00:00:00 2001
+From: Daniel Gomez-Cruces <daniel.gomez-cruces@tttech.com>
+Date: Thu, 25 May 2017 13:24:46 +0200
+Subject: [PATCH 3/3] Removing audiomanager from
+ packagegroup-abstract-component-p2
+
+---
+ .../packagegroups/packagegroup-abstract-component-p2.bb                  | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/meta-ivi/recipes-yocto-ivi/packagegroups/packagegroup-abstract-component-p2.bb b/meta-ivi/recipes-yocto-ivi/packagegroups/packagegroup-abstract-component-p2.bb
+index 64811b9..1b79dd7 100644
+--- a/meta-ivi/recipes-yocto-ivi/packagegroups/packagegroup-abstract-component-p2.bb
++++ b/meta-ivi/recipes-yocto-ivi/packagegroups/packagegroup-abstract-component-p2.bb
+@@ -16,5 +16,4 @@ RDEPENDS_${PN} += "\
+     node-health-monitor \
+     persistence-client-library \
+     persistence-administrator \
+-    audiomanagerplugins \
+     "
+-- 
+2.7.4
+

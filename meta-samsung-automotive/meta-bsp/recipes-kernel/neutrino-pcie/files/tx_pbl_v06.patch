@@ -1,0 +1,41 @@
+--- DWC_ETH_QOS_dev.c.orig	2017-07-27 13:54:09.384828260 +0200
++++ DWC_ETH_QOS_dev.c	2017-07-26 11:03:07.593558437 +0200
+@@ -3832,15 +3832,15 @@
+ 	enable_dma_tx_interrupts(chInx);
+ 
+ 	/* set TX PBL = 128 bytes */
+-  	DMA_TXCHCTL_TXPBL_UdfWr(chInx, 16);
++  	DMA_TXCHCTL_TXPBL_UdfWr(chInx, 48);
+ 
+     /* To get Best Performance */
+     DMA_BUSCFG_BLEN16_UdfWr(1);
+     DMA_BUSCFG_BLEN8_UdfWr(1);
+     DMA_BUSCFG_BLEN4_UdfWr(1);
+     
+-    DMA_BUSCFG_RD_OSR_LMT_UdfWr(15);
+-    DMA_BUSCFG_WR_OSR_LMT_UdfWr(15);
++    DMA_BUSCFG_RD_OSR_LMT_UdfWr(4);
++    DMA_BUSCFG_WR_OSR_LMT_UdfWr(4);
+ 
+     DMA_TXCHCTL_ST_UdfWr(chInx, 0x1);
+ 
+--- DWC_ETH_QOS_drv.c.orig	2017-07-27 13:54:09.384828260 +0200
++++ DWC_ETH_QOS_drv.c	2017-07-26 11:04:22.825940621 +0200
+@@ -6514,6 +6514,7 @@
+ 	case DWC_ETH_QOS_PBL_8:
+ 	case DWC_ETH_QOS_PBL_16:
+ 	case DWC_ETH_QOS_PBL_32:
++	case DWC_ETH_QOS_PBL_48:
+ 		hw_if->config_tx_pbl_val(chInx, tx_pbl);
+ 		hw_if->config_pblx8(chInx, 0);
+ 		break;
+--- DWC_ETH_QOS_yapphdr.h.orig	2017-07-27 13:54:09.384828260 +0200
++++ DWC_ETH_QOS_yapphdr.h	2017-07-26 11:05:17.355318468 +0200
+@@ -233,6 +233,7 @@
+ #define DWC_ETH_QOS_PBL_8	8
+ #define DWC_ETH_QOS_PBL_16	16
+ #define DWC_ETH_QOS_PBL_32	32
++#define DWC_ETH_QOS_PBL_48	48
+ #define DWC_ETH_QOS_PBL_64	64	/* 8 x 8 */
+ #define DWC_ETH_QOS_PBL_128	128	/* 8 x 16 */
+ #define DWC_ETH_QOS_PBL_256	256	/* 8 x 32 */

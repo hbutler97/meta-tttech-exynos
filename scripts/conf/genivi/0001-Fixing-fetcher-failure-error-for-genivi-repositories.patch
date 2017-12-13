@@ -1,0 +1,161 @@
+From d3ab3cda4164d903a66be0b8c79407f3bb7f4053 Mon Sep 17 00:00:00 2001
+From: Daniel Gomez-Cruces <daniel.gomez-cruces@tttech.com>
+Date: Wed, 24 May 2017 12:16:30 +0200
+Subject: [PATCH 1/2] Fixing fetcher failure error for genivi repositories
+ Fetcher failure for URL: 'http://bugs.genivi.org/report.cgi'. URL
+ http://bugs.genivi.org/report.cgi doesn't work. Please ensure your network is
+ configured correctly.
+
+---
+ meta-ivi/recipes-core-ivi/vsomeip/vsomeip_2.0.1.bb                    | 2 +-
+ meta-ivi/recipes-extended/common-api/common-api-c++-dbus_3.1.5.bb     | 2 +-
+ meta-ivi/recipes-extended/common-api/common-api-c++-someip_3.1.5.bb   | 2 +-
+ meta-ivi/recipes-extended/dlt-daemon/dlt-daemon_2.15.0.bb             | 2 +-
+ .../recipes-extended/node-health-monitor/node-health-monitor_1.3.5.bb | 2 +-
+ .../recipes-extended/node-state-manager/node-state-manager_2.0.0.bb   | 4 ++--
+ .../persistence-administrator/persistence-administrator_1.0.8.bb      | 2 +-
+ .../persistence-client-library/persistence-client-library_1.1.0.bb    | 2 +-
+ .../persistence-common-object/persistence-common-object_1.0.3.bb      | 2 +-
+ meta-ivi/recipes-graphics/wayland/wayland-ivi-extension_1.10.90.bb    | 2 +-
+ 10 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/meta-ivi/recipes-core-ivi/vsomeip/vsomeip_2.0.1.bb b/meta-ivi/recipes-core-ivi/vsomeip/vsomeip_2.0.1.bb
+index cbe7ba4..7cc4414 100644
+--- a/meta-ivi/recipes-core-ivi/vsomeip/vsomeip_2.0.1.bb
++++ b/meta-ivi/recipes-core-ivi/vsomeip/vsomeip_2.0.1.bb
+@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=815ca599c9df247a0c7f619bab123dad"
+ DEPENDS = "boost dlt-daemon"
+ 
+ SRCREV = "2b7442a4c2452f8f3bd9e0f09f829478256d39af"
+-SRC_URI = "git://git.projects.genivi.org/vSomeIP.git;protocol=http \
++SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
+     file://build_fixup.patch \
+     "
+ 
+diff --git a/meta-ivi/recipes-extended/common-api/common-api-c++-dbus_3.1.5.bb b/meta-ivi/recipes-extended/common-api/common-api-c++-dbus_3.1.5.bb
+index 479b01c..4224164 100644
+--- a/meta-ivi/recipes-extended/common-api/common-api-c++-dbus_3.1.5.bb
++++ b/meta-ivi/recipes-extended/common-api/common-api-c++-dbus_3.1.5.bb
+@@ -7,7 +7,7 @@ DEPENDS = "commonapi3 dbus"
+ REQUIRES = "commonapi3 dbus"
+ 
+ SRCREV = "3348a422ffc756b63de5890356383858a898e8b1"
+-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;protocol=http"
++SRC_URI = "git://github.com/GENIVI/capicxx-dbus-runtime.git;protocol=https"
+ S = "${WORKDIR}/git"
+ 
+ EXTRA_OECMAKE += "-DCMAKE_INSTALL_PREFIX=/usr "
+diff --git a/meta-ivi/recipes-extended/common-api/common-api-c++-someip_3.1.5.bb b/meta-ivi/recipes-extended/common-api/common-api-c++-someip_3.1.5.bb
+index a35cef4..7337ef6 100644
+--- a/meta-ivi/recipes-extended/common-api/common-api-c++-someip_3.1.5.bb
++++ b/meta-ivi/recipes-extended/common-api/common-api-c++-someip_3.1.5.bb
+@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=815ca599c9df247a0c7f619bab123dad"
+ DEPENDS = "boost common-api-c++ vsomeip"
+ 
+ SRCREV = "e2b0e5cbf9a36be6896c5cef7b1ba4857e7111c4"
+-SRC_URI = "git://git.projects.genivi.org/common-api/cpp-someip-runtime.git;protocol=http "
++SRC_URI = "git://github.com/GENIVI/capicxx-someip-runtime.git;protocol=https "
+ 
+ S = "${WORKDIR}/git"
+ 
+diff --git a/meta-ivi/recipes-extended/dlt-daemon/dlt-daemon_2.15.0.bb b/meta-ivi/recipes-extended/dlt-daemon/dlt-daemon_2.15.0.bb
+index 8ab95d1..be4d332 100644
+--- a/meta-ivi/recipes-extended/dlt-daemon/dlt-daemon_2.15.0.bb
++++ b/meta-ivi/recipes-extended/dlt-daemon/dlt-daemon_2.15.0.bb
+@@ -15,7 +15,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
+ DEPENDS = "dbus zlib"
+ 
+ SRCREV = "e9a486a08fff6d3cc7133a350cec3ee10f463207"
+-SRC_URI = "git://git.projects.genivi.org/${BPN}.git;protocol=http \
++SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
+     file://0002-Don-t-execute-processes-as-a-specific-user.patch \
+     file://0004-Modify-systemd-config-directory.patch \
+     "
+diff --git a/meta-ivi/recipes-extended/node-health-monitor/node-health-monitor_1.3.5.bb b/meta-ivi/recipes-extended/node-health-monitor/node-health-monitor_1.3.5.bb
+index 208fe08..27ec263 100644
+--- a/meta-ivi/recipes-extended/node-health-monitor/node-health-monitor_1.3.5.bb
++++ b/meta-ivi/recipes-extended/node-health-monitor/node-health-monitor_1.3.5.bb
+@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
+ PR = "r2"
+ 
+ SRCREV="851565499527e2d44047de3f6cbe9dd3a84a6c74"
+-SRC_URI = "git://git.projects.genivi.org/lifecycle/${BPN}.git;protocol=http \
++SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
+            file://fix-no-libsystemd-daemon.patch \
+            file://0001-change-service-name.patch \
+           "
+diff --git a/meta-ivi/recipes-extended/node-state-manager/node-state-manager_2.0.0.bb b/meta-ivi/recipes-extended/node-state-manager/node-state-manager_2.0.0.bb
+index a2b0fdc..9499bd6 100644
+--- a/meta-ivi/recipes-extended/node-state-manager/node-state-manager_2.0.0.bb
++++ b/meta-ivi/recipes-extended/node-state-manager/node-state-manager_2.0.0.bb
+@@ -12,7 +12,7 @@ LICENSE = "MPLv2"
+ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
+ 
+ SRCREV = "0894ea63e0b86afcee3a45baa10abc6b8be4ad44"
+-SRC_URI = "git://git.projects.genivi.org/lifecycle/${BPN}.git;protocol=http \
++SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
+            file://nsm-fix-systemd-service-dep.patch \
+            file://nsm-fix-no-libsystemd-daemon.patch \
+            file://link-with-gio.patch \
+@@ -53,4 +53,4 @@ do_install_append() {
+     if [ -f ${T_XML} ]; then
+        rm -f ${T_XML}
+     fi
+-}
+\ No newline at end of file
++}
+diff --git a/meta-ivi/recipes-extended/persistence-administrator/persistence-administrator_1.0.8.bb b/meta-ivi/recipes-extended/persistence-administrator/persistence-administrator_1.0.8.bb
+index 9f6a280..6594f59 100644
+--- a/meta-ivi/recipes-extended/persistence-administrator/persistence-administrator_1.0.8.bb
++++ b/meta-ivi/recipes-extended/persistence-administrator/persistence-administrator_1.0.8.bb
+@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
+ 
+ SRCREV = "47e5a424c8ef6e33565737f20d3bd81f69c8efc9"
+ SRC_URI = " \
+-    git://git.projects.genivi.org/persistence/persistence-administrator.git;protocol=http \
++    git://github.com/GENIVI/${BPN}.git;protocol=https \
+     "
+ S = "${WORKDIR}/git"
+ 
+diff --git a/meta-ivi/recipes-extended/persistence-client-library/persistence-client-library_1.1.0.bb b/meta-ivi/recipes-extended/persistence-client-library/persistence-client-library_1.1.0.bb
+index 1445a8d..0291efa 100644
+--- a/meta-ivi/recipes-extended/persistence-client-library/persistence-client-library_1.1.0.bb
++++ b/meta-ivi/recipes-extended/persistence-client-library/persistence-client-library_1.1.0.bb
+@@ -11,7 +11,7 @@ DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
+ 
+ SRCREV = "fe4b73dcc282932ae3ebb8805e0b617a0016dc9a"
+ SRC_URI = " \
+-    git://git.projects.genivi.org/persistence/persistence-client-library.git;protocol=http \
++    git://github.com/GENIVI/${BPN}.git;protocol=https \
+     file://0001-load-correct-version-of-libpers_common.patch \
+     file://0001-fix-exec-path.patch \
+     "
+diff --git a/meta-ivi/recipes-extended/persistence-common-object/persistence-common-object_1.0.3.bb b/meta-ivi/recipes-extended/persistence-common-object/persistence-common-object_1.0.3.bb
+index 16ed3a5..9b8a010 100644
+--- a/meta-ivi/recipes-extended/persistence-common-object/persistence-common-object_1.0.3.bb
++++ b/meta-ivi/recipes-extended/persistence-common-object/persistence-common-object_1.0.3.bb
+@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
+ 
+ SRCREV = "395b0f504e05ee6c59c1b9d9267c793e072a19ba"
+ SRC_URI = " \
+-    git://git.projects.genivi.org/persistence/persistence-common-object.git;protocol=http \
++    git://github.com/GENIVI/${BPN}.git;protocol=https \
+     "
+ S = "${WORKDIR}/git"
+ 
+diff --git a/meta-ivi/recipes-graphics/wayland/wayland-ivi-extension_1.10.90.bb b/meta-ivi/recipes-graphics/wayland/wayland-ivi-extension_1.10.90.bb
+index b78a2f7..bf7a037 100644
+--- a/meta-ivi/recipes-graphics/wayland/wayland-ivi-extension_1.10.90.bb
++++ b/meta-ivi/recipes-graphics/wayland/wayland-ivi-extension_1.10.90.bb
+@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
+ LIC_FILES_CHKSUM = "file://LICENSE;md5=176cedb32f48dd58f07e0c1c717b3ea4"
+ 
+ SRCREV = "6c2823684105c0bd46aaeca817fe5d87e7c6da25"
+-SRC_URI = "git://git.projects.genivi.org/${BPN}.git;protocol=http \
++SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
+     "
+ S = "${WORKDIR}/git"
+ 
+-- 
+2.7.4
+
